@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,5 +23,7 @@ namespace Application.Dtos.Tarea
         public int Valor { get; set; }
 
         public bool Completada { get; set; }
+        [ForeignKey(nameof(TipoTarea))]
+        public int TipoTareaId { get; set; }
     }
 }

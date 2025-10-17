@@ -16,6 +16,7 @@ namespace DataAccess
         public virtual DbSet<TipoTarea> TipoTareas { get; set; }
         public virtual DbSet<HistorialTarea> HistorialTareas { get; set; }
         public virtual DbSet<UsuarioPorTarea> UsuariosPorTareas { get; set; }
+        public virtual DbSet<EstadisticaUsuario> EstadisticasUsuarios { get; set; }
         public DbDataAccess(DbContextOptions<DbDataAccess> options) : base(options)
         {
         }

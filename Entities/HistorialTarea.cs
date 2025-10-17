@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Abstractions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
-    public class HistorialTarea
+    public class HistorialTarea:IEntidad
     {
         public int Id { get; set; }
         public int IdTarea { get; set; }

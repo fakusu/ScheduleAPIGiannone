@@ -16,6 +16,7 @@ namespace Entities
                 UsuariosPorTareas = new HashSet<UsuarioPorTarea>();
                 Historial = new List<HistorialTarea>();
         }
+        #region Properties
         public int Id { get; set; }
         [StringLength(30)]
         public string Titulo { get; set; }
@@ -31,9 +32,27 @@ namespace Entities
         public int Valor { get; set; }
 
         public bool Completada { get; set; }
+        #endregion
 
+        #region Virtual
         public virtual ICollection<UsuarioPorTarea> UsuariosPorTareas { get; set; }
         public virtual List<HistorialTarea> Historial { get; set; }
         public virtual TipoTarea TipoTarea { get; set; }
+        #endregion
+
+        #region setters y getters
+        public void SetTitulo(string titulo) 
+        { 
+           if (string.IsNullOrWhiteSpace(titulo))
+            {
+                throw new ArgumentException("El titulo no puede estar vacío.");
+            }
+            Titulo = titulo;
+        }
+        public string GetClassName()
+        {
+            return string.Join(":", this.GetType().BaseType.Name, Titulo);
+        }
+        #endregion
     }
 }

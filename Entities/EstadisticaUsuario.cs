@@ -22,7 +22,6 @@ namespace Entities
         public int TotalHabitosBuenos { get; set; }       
         public int TotalHabitosMalos { get; set; }
         public DateTime UltimaConexion { get; set; }
-        public int Nivel { get; set; }
-        public int ExperienciaTotal { get; set; }
+        
     }
 }

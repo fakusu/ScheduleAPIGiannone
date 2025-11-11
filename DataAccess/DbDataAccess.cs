@@ -17,10 +17,13 @@ namespace DataAccess
         public virtual DbSet<HistorialTarea> HistorialTareas { get; set; }
         public virtual DbSet<UsuarioPorTarea> UsuariosPorTareas { get; set; }
         public virtual DbSet<EstadisticaUsuario> EstadisticasUsuarios { get; set; }
-        public DbDataAccess(DbContextOptions<DbDataAccess> options) : base(options)
-        {
-        }
+        public DbDataAccess(DbContextOptions<DbDataAccess> options) : base(options) {        }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)=>optionsBuilder.LogTo(Console.WriteLine).EnableDetailedErrors();
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);   
+        }
 
     }
 }

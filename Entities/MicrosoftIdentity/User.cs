@@ -20,6 +20,9 @@ namespace Entities.MicrosoftIdentity
         public string Apellidos { get; set; }
         [DataType(DataType.Date)]
         public DateTime? FechaNacimiento { get; set; }
+        public int Nivel { get; set; }
 
-        }
+        public int Experiencia { get; set; }
+
+    }
 }

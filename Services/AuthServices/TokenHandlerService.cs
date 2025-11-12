@@ -32,7 +32,7 @@ namespace Services.AuthServices
                 {
                     new Claim("Id", parametros.Id),
                     new Claim(  JwtRegisteredClaimNames.Sub,parametros.Id),
-                    new Claim(JwtRegisteredClaimNames.Name,parametros.Username),
+                    new Claim(JwtRegisteredClaimNames.Name,parametros.UserName),
                     new Claim(JwtRegisteredClaimNames.Email,parametros.Email)
                 }),
                 Expires = DateTime.UtcNow.AddHours(4),

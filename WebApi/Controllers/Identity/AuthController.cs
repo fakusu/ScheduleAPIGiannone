@@ -149,7 +149,7 @@ namespace WebApi.Controllers.Identity
                 Login = false,
                 Errores = new List<string>()
                     {
-                       "Usuario o contraseña incorrecto!"
+                       "User o contraseña incorrecto!"
                     }
             });
         }

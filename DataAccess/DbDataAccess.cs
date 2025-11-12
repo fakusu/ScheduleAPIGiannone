@@ -1,4 +1,5 @@
 ﻿using Entities;
+using Entities.MicrosoftIdentity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace DataAccess
 {
-    public class DbDataAccess:IdentityDbContext
+    public class DbDataAccess:IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
     {
-        public virtual DbSet<Usuario> Usuarios { get; set; }
+        public virtual DbSet<User> Usuarios { get; set; }
         public virtual DbSet<Tarea> Tareas { get; set; }
         public virtual DbSet<TipoTarea> TipoTareas { get; set; }
         public virtual DbSet<HistorialTarea> HistorialTareas { get; set; }

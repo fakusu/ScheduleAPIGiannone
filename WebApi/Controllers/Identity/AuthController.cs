@@ -27,20 +27,21 @@ namespace WebApi.Controllers.Identity
             _logger = logger;
             _servicioToken = servicioToken;
         }
-        [HttpPost("Register")]
+        [HttpPost]
+        [Route("Register")]
         public async Task<IActionResult> RegistrarUsuario([FromBody] UserRegistroRequestDto user)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var existeUsuario = await _userManager.FindByEmailAsync(user.Email);
                 if (existeUsuario != null)
                 {
-                    return BadRequest("Existe un usuario registrado con el mail" + user.Email + ".");
+                    return BadRequest("Existe un usuario registrado con el mal " + user.Email + ".");
                 }
                 var Creado = await _userManager.CreateAsync(new User()
                 {
-                    UserName = user.Email.Substring(0, user.Email.IndexOf('@')),
                     Email = user.Email,
+                    UserName = user.Email.Substring(0, user.Email.IndexOf('@')),
                     Nombres = user.Nombres,
                     Apellidos = user.Apellidos,
                     FechaNacimiento = user.FechaNacimiento
@@ -49,11 +50,12 @@ namespace WebApi.Controllers.Identity
                 {
                     return Ok(new UserRegistroResponseDto
                     {
-                        NombreCompleto = string.Join("", user.Nombres, user.Apellidos),
+                        NombreCompleto = string.Join(" ", user.Nombres, user.Apellidos),
                         Email = user.Email,
                         UserName = user.Email.Substring(0, user.Email.IndexOf('@'))
                     });
                 }
+
                 else
                 {
                     return BadRequest(Creado.Errors.Select(e => e.Description).ToList());
@@ -61,7 +63,7 @@ namespace WebApi.Controllers.Identity
             }
             else
             {
-                return BadRequest("Los datos enviados no son validos");
+                return BadRequest("Los datos enviados no son validos.");
             }
         }
         [HttpPost]
@@ -120,12 +122,14 @@ namespace WebApi.Controllers.Identity
                     {
                         try
                         {
+                            var roles = await _userManager.GetRolesAsync(existeUsuario);
                             var parametros = new TokenParameters()
                             {
                                 Id = existeUsuario.Id.ToString(),
                                 PasswordHash = existeUsuario.PasswordHash,
                                 UserName = existeUsuario.UserName,
-                                Email = existeUsuario.Email
+                                Email = existeUsuario.Email,
+                                Roles = roles
                             };
                             var jwt = _servicioToken.GenerateJwtTokens(parametros);
                             return Ok(new LoginUserResponseDto()

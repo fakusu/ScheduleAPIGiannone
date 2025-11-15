@@ -12,5 +12,6 @@ namespace Abstractions
         string Email { get; set; }  
         string PasswordHash { get; set; }
         string Id { get; set; }
+        IList<string>? Roles { get; set; }
     }
 }

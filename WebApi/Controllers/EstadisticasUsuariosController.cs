@@ -2,94 +2,163 @@
 using Application.Dtos.EstadisticaUsuario;
 using AutoMapper;
 using Entities;
+using Entities.MicrosoftIdentity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class EstadisticasUsuariosController : ControllerBase
     {
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<EstadisticasUsuariosController> _logger;
         private readonly IApplication<EstadisticaUsuario> _estadisticaUsuario;
-        public readonly IMapper _mapper;
-        public EstadisticasUsuariosController(ILogger<EstadisticasUsuariosController> logger, IApplication<EstadisticaUsuario> estadisticaUsuario, IMapper mapper)
+        private readonly IMapper _mapper;
+        public EstadisticasUsuariosController(ILogger<EstadisticasUsuariosController> logger, IApplication<EstadisticaUsuario> estadisticaUsuario, IMapper mapper, UserManager<User> userManager)
         {
             _logger = logger;
             _estadisticaUsuario = estadisticaUsuario;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         [HttpGet]
         [Route("All")]
+        [Authorize(Roles = "Administrador, Cliente")]
         public async Task<IActionResult> All()
         {
-            return Ok(_mapper.Map<IList<EstadisticaUsuarioResponseDto>>(_estadisticaUsuario.GetAll()));
+            try
+            {
+                var id = User.FindFirst("Id").Value.ToString();
+                var user = _userManager.FindByIdAsync(id).Result;
+                if (await _userManager.IsInRoleAsync(user, "Administrador") ||
+                    await _userManager.IsInRoleAsync(user, "Cliente"))
+                {
+                    var name = User.FindFirst("name");
+                    var a = User.Claims;
+                    return Ok(_mapper.Map<IList<EstadisticaUsuarioResponseDto>>(_estadisticaUsuario.GetAll()));
+                }
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener todas las estadisticas.");
+                return StatusCode(500, "Ocurrió un error al proceprocesar la solicitud.");
+            }
         }
+
+
+
         [HttpGet]
         [Route("ById")]
+        [Authorize(Roles = "Administrador, Cliente")]
         public async Task<IActionResult> ById(int? Id)
         {
-            if (!Id.HasValue)
+            try
             {
-                return BadRequest();
+                if (!Id.HasValue)
+                    return BadRequest("Debe especificar un Id.");
+                var idUser = User.FindFirst("Id")?.Value;
+                var user = await _userManager.FindByIdAsync(idUser);
+
+                if (await _userManager.IsInRoleAsync(user, "Administrador") ||
+                    await _userManager.IsInRoleAsync(user, "Cliente"))
+                {
+                    var estadisticaUsuario = _estadisticaUsuario.GetById(Id.Value);
+
+                    if (estadisticaUsuario is null)
+                        return NotFound("Estadisticas no encontrada.");
+
+                    return Ok(_mapper.Map<EstadisticaUsuarioResponseDto>(estadisticaUsuario));
+                }
+
+                return Unauthorized();
             }
-            EstadisticaUsuario estadisticaUsuario = _estadisticaUsuario.GetById(Id.Value);
-            if (estadisticaUsuario is null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError(ex, "Error al obtener las estadisticas por Id.");
+                return StatusCode(500, "Ocurrió un error al procesar la solicitud.");
             }
-            return Ok(_mapper.Map<EstadisticaUsuarioResponseDto>(estadisticaUsuario));
         }
         [HttpPost]
-        public async Task<IActionResult> Crear(EstadisticaUsuarioRequestDto estadisticaUsuarioRequestDto)
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> Crear(EstadisticaUsuarioRequestDto tareaRequestDto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest();
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+                var estadisticaUsuario = _mapper.Map<EstadisticaUsuario>(tareaRequestDto);
+                _estadisticaUsuario.Save(estadisticaUsuario);
+                return Ok(estadisticaUsuario.Id);
             }
-            var estadisticaUsuario = _mapper.Map<EstadisticaUsuario>(estadisticaUsuarioRequestDto);
-            _estadisticaUsuario.Save(estadisticaUsuario);
-            return Ok(estadisticaUsuario.Id);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al crear las estadisticas.");
+                return StatusCode(500, "Ocurrió un error al procesar la solicitud.");
+            }
         }
         [HttpPut]
-        public async Task<IActionResult> Editar(int? Id, EstadisticaUsuarioRequestDto estadisticaUsuarioRequestDto)
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> Editar(int? Id, EstadisticaUsuarioRequestDto tareaRequestDto)
         {
-            if (!Id.HasValue)
+            try
             {
-                return BadRequest();
+                if (!Id.HasValue)
+                {
+                    return BadRequest();
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+                EstadisticaUsuario estadisticaUsuarioBack = _estadisticaUsuario.GetById(Id.Value);
+                if (estadisticaUsuarioBack is null)
+                {
+                    return NotFound();
+                }
+                estadisticaUsuarioBack = _mapper.Map<EstadisticaUsuario>(tareaRequestDto);
+                _estadisticaUsuario.Save(estadisticaUsuarioBack);
+                return Ok(estadisticaUsuarioBack);
             }
-            if (!ModelState.IsValid)
+            catch (Exception ex)
             {
-                return BadRequest();
+                _logger.LogError(ex, "Error al editar las estadisticas.");
+                return StatusCode(500, "Ocurrió un error al procesar la solicitud.");
             }
-            EstadisticaUsuario estadisticaUsuarioBack = _estadisticaUsuario.GetById(Id.Value);
-            if (estadisticaUsuarioBack is null)
-            {
-                return NotFound();
-            }
-            estadisticaUsuarioBack = _mapper.Map<EstadisticaUsuario>(estadisticaUsuarioRequestDto);
-            _estadisticaUsuario.Save(estadisticaUsuarioBack);
-            return Ok();
         }
+
         [HttpDelete]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Borrar(int? Id)
         {
-            if (!Id.HasValue)
+            try
             {
-                return BadRequest();
+                if (!Id.HasValue)
+                {
+                    return BadRequest();
+                }
+                if (!ModelState.IsValid) return BadRequest();
+                EstadisticaUsuario estadisticaUsuarioBack = _estadisticaUsuario.GetById(Id.Value);
+                if (estadisticaUsuarioBack is null)
+                {
+                    return NotFound();
+                }
+                _estadisticaUsuario.Delete(estadisticaUsuarioBack.Id);
+                return Ok();
             }
-            if (!ModelState.IsValid)
+            catch (Exception ex)
             {
-                return BadRequest();
+                _logger.LogError(ex, "Error al borrar las estadisticas.");
+                return StatusCode(500, "Ocurrió un error al procesar la solicitud.");
             }
-            EstadisticaUsuario estadisticaUsuarioBack = _estadisticaUsuario.GetById(Id.Value);
-            if (estadisticaUsuarioBack == null)
-            {
-                return NotFound();
-            }
-            _estadisticaUsuario.Delete(estadisticaUsuarioBack.Id);
-            return Ok();
         }
     }
 }

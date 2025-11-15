@@ -24,10 +24,7 @@ namespace WebApi.Controllers.Identity
             _logger = logger;
             _mapper = mapper;
         }
-        /// <summary>
-        /// Obtiene una lista de todos los laboratorios por tipo
-        /// </summary>
-        /// <returns>Lista de Alimentos</returns>
+       
         [HttpGet]
         [Route("GetAll")]
         public async Task<IActionResult> GetAll()
@@ -35,14 +32,7 @@ namespace WebApi.Controllers.Identity
             return Ok(_mapper.Map<IList<RoleResponseDto>>(_roleManager.Roles.ToList()));
         }
 
-        /// <summary>
-        /// Crea un alimento
-        /// </summary>
-        /// <param name="{"></param>
-        /// <returns></returns>
-        /// <response code="200">Alimento Creado</response>
-        /// <response code="400">Error al validar el alimento</response>
-        /// <response code="500">Oops! No se pudo crear el alimento</response>
+       
         [HttpPost]
         [Route("Create")]
         public IActionResult Guardar(RoleRequestDto roleRequestDto)
@@ -53,6 +43,7 @@ namespace WebApi.Controllers.Identity
                 try
                 {
                     var role = _mapper.Map<Role>(roleRequestDto);
+                    role.Id = Guid.NewGuid();
                     var result = _roleManager.CreateAsync(role).Result;
                     if (result.Succeeded)
                     {

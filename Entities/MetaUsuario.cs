@@ -1,4 +1,5 @@
 ﻿using Abstractions;
+using Entities.MicrosoftIdentity;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -18,8 +19,8 @@ namespace Entities
         [Required]
         public Guid UsuarioId { get; set; }
 
-        [ForeignKey("UsuarioId")]
-        public IdentityUser<Guid> Usuario { get; set; }
+        [ForeignKey(nameof(UsuarioId))]
+        public virtual User User { get; set; }
 
         [Required]
         [MaxLength(200)]

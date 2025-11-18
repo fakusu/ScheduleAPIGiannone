@@ -52,7 +52,7 @@ namespace WebApi.Migrations
 
                     b.HasIndex("IdUsuario");
 
-                    b.ToTable("EstadisticasUsuarios");
+                    b.ToTable("EstadisticasUsuarios", (string)null);
                 });
 
             modelBuilder.Entity("Entities.HistorialTarea", b =>
@@ -76,7 +76,7 @@ namespace WebApi.Migrations
 
                     b.HasIndex("IdTarea");
 
-                    b.ToTable("HistorialTareas");
+                    b.ToTable("HistorialTareas", (string)null);
                 });
 
             modelBuilder.Entity("Entities.MicrosoftIdentity.Role", b =>
@@ -332,7 +332,7 @@ namespace WebApi.Migrations
 
                     b.HasIndex("TipoTareaId");
 
-                    b.ToTable("Tareas");
+                    b.ToTable("Tareas", (string)null);
                 });
 
             modelBuilder.Entity("Entities.TipoTarea", b =>
@@ -350,7 +350,7 @@ namespace WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TipoTareas");
+                    b.ToTable("TipoTareas", (string)null);
                 });
 
             modelBuilder.Entity("Entities.UsuarioPorTarea", b =>
@@ -373,7 +373,7 @@ namespace WebApi.Migrations
 
                     b.HasIndex("IdUsuario");
 
-                    b.ToTable("UsuariosPorTareas");
+                    b.ToTable("UsuariosPorTareas", (string)null);
                 });
 
             modelBuilder.Entity("Entities.EstadisticaUsuario", b =>
